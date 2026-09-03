@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: researchos-postgres
+    environment:
+      POSTGRES_USER: researchos
+      POSTGRES_PASSWORD: researchos
+      POSTGRES_DB: researchos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U researchos -d researchos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 768m
+
+  redis:
+    image: redis:7-alpine
+    container_name: researchos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 256m
+
+  # Optional full stack later — keep app processes local during development
+  # to stay within WSL/Docker memory caps (prefer cloud LLM APIs).
+
+volumes:
+  postgres_data:
+  redis_data:
